@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dev Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root{color-scheme:dark}
+      body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2d5a7b 100%);
+        min-height: 100vh;
+      }
+      .card {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        box-shadow: 0 4px 14px 0 rgba(14, 165, 233, 0.39);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+      }
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      tbody tr:hover {
+        background: rgba(56, 189, 248, 0.1);
+      }
+    </style>
+  </head>
+  <body class="text-cyan-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-4 space-y-4">
+      <header class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Dev Console</h1>
+          <p class="text-cyan-300/70 text-sm mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
+        </div>
+        <div id="authState" class="text-sm text-cyan-300/70"></div>
+      </header>
+
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card rounded-xl p-4 space-y-3 shadow-xl">
+          <h2 class="font-semibold text-cyan-400">ควบคุม</h2>
+          <div class="flex gap-2">
+            <button id="btnLogin" class="btn-primary px-3 py-2 rounded-lg text-slate-900 font-semibold">เข้าสู่ระบบ API</button>
+            <button id="btnLogout" class="px-3 py-2 rounded bg-slate-700/50 hover:bg-slate-600/50 transition">ล้างคุกกี้</button>
+          </div>
+          <div class="text-xs text-cyan-300/60">API จะถามรหัสเฉพาะครั้งแรก (ตั้งค่า SITE_PASSWORD ไว้ใน Secrets)</div>
+        </div>
+
+        <div class="card rounded-xl p-4 md:col-span-2 space-y-3 shadow-xl">
+          <h2 class="font-semibold text-cyan-400">ตั้งค่า Role</h2>
+          <div class="flex flex-wrap gap-2 items-center">
+            <input id="userIdInput" class="px-3 py-2 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 outline-none transition w-[340px]" placeholder="ใส่ userId (หรือเลือกจากตารางด้านล่าง)"/>
+            <select id="roleSelect" class="px-3 py-2 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 outline-none transition">
+              <option value="viewer">viewer</option>
+              <option value="secretary">secretary</option>
+              <option value="boss">boss</option>
+            </select>
+            <button id="btnSetRole" class="btn-primary px-3 py-2 rounded-lg text-slate-900 font-semibold">บันทึก</button>
+            <button id="btnRefreshRoles" class="px-3 py-2 rounded bg-slate-700/50 hover:bg-slate-600/50 transition">โหลด Roles</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card rounded-xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-cyan-400">Roles</h2>
+            <button id="btnRefreshRoles2" class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50 transition text-sm">รีเฟรช</button>
+          </div>
+          <div class="overflow-auto max-h-[420px] rounded-lg">
+            <table class="w-full text-sm">
+              <thead class="text-cyan-300/80 bg-slate-800/30 sticky top-0">
+                <tr>
+                  <th class="text-left p-2 font-semibold">user_id</th>
+                  <th class="text-left p-2 font-semibold">role</th>
+                  <th class="text-left p-2 font-semibold">updated_at</th>
+                </tr>
+              </thead>
+              <tbody id="rolesTbody" class="text-cyan-100/90"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card rounded-xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold text-cyan-400">ผู้ใช้ที่เพิ่ง follow ล่าสุด</h2>
+            <div class="flex items-center gap-2">
+              <input id="recentLimit" type="number" min="1" max="200" value="50" class="px-3 py-2 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 outline-none transition w-24"/>
+              <button id="btnLoadRecent" class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50 transition text-sm">โหลด</button>
+            </div>
+          </div>
+          <div class="overflow-auto max-h-[420px] rounded-lg">
+            <table class="w-full text-sm">
+              <thead class="text-cyan-300/80 bg-slate-800/30 sticky top-0">
+                <tr>
+                  <th class="text-left p-2 font-semibold">user_id</th>
+                  <th class="text-left p-2 font-semibold">first_seen (ts)</th>
+                </tr>
+              </thead>
+              <tbody id="recentTbody" class="text-cyan-100/90"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notification Settings -->
+      <section class="card rounded-xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold text-cyan-400">⏰ ตั้งค่าการแจ้งเตือน</h2>
+          <button id="btnRefreshSettings" class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50 transition text-sm">รีเฟรช</button>
+        </div>
+        <p class="text-sm text-cyan-300/60 mb-3">ระยะเวลาการแจ้งเตือนล่วงหน้า (นาที) สำหรับแต่ละประเภทงาน</p>
+        <div id="settingsContainer" class="space-y-2"></div>
+      </section>
+
+      <!-- Audit Logs -->
+      <section class="card rounded-xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold text-cyan-400">📋 Audit Logs</h2>
+          <div class="flex items-center gap-2">
+            <select id="actionFilter" class="px-3 py-1 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 outline-none transition text-sm">
+              <option value="">ทั้งหมด</option>
+              <option value="create_event">สร้างงาน</option>
+              <option value="update_event">แก้ไขงาน</option>
+              <option value="delete_event">ลบงาน</option>
+              <option value="set_role">ตั้งค่า Role</option>
+              <option value="set_attendance">แจ้งเข้าร่วม</option>
+              <option value="urgent_task">งานด่วน</option>
+              <option value="update_notification_settings">ตั้งค่าแจ้งเตือน</option>
+            </select>
+            <input id="logLimit" type="number" min="10" max="500" value="50" class="px-3 py-1 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 outline-none transition text-sm w-20"/>
+            <button id="btnLoadLogs" class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50 transition text-sm">โหลด</button>
+          </div>
+        </div>
+        <div class="overflow-auto max-h-[500px] rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="text-cyan-300/80 bg-slate-800/30 sticky top-0">
+              <tr>
+                <th class="text-left p-2 font-semibold">เวลา</th>
+                <th class="text-left p-2 font-semibold">Actor</th>
+                <th class="text-left p-2 font-semibold">Action</th>
+                <th class="text-left p-2 font-semibold">Entity</th>
+                <th class="text-left p-2 font-semibold">Payload</th>
+              </tr>
+            </thead>
+            <tbody id="logsTbody" class="text-cyan-100/90"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // ---------- Helpers ----------
+      function setAuthState(txt){
+        document.getElementById('authState').textContent = txt;
+      }
+      function tsToStr(ms){
+        try{ var d = new Date(parseInt(ms,10)); return isNaN(d.valueOf())? String(ms): d.toLocaleString(); }catch(e){ return String(ms); }
+      }
+      function loginPrompt(){
+        var pwd = prompt('ใส่รหัสผ่านสำหรับ API');
+        if(!pwd) return Promise.resolve(false);
+        var fd = new FormData();
+        fd.append('password', pwd);
+        fd.append('redirect', location.pathname);
+        return fetch('/auth/login', { method:'POST', body: fd, credentials:'include' })
+          .then(function(res){ return res.status===303 || res.ok; });
+      }
+      function api(path, opts){
+        opts = opts || {};
+        var headers = Object.assign({ 'content-type':'application/json' }, (opts.headers||{}));
+        // ไม่ต้องอ่าน cookie (HttpOnly) แค่ส่ง credentials ก็พอ
+        return fetch(path, Object.assign({}, opts, { credentials:'include', headers: headers }))
+          .then(function(res){
+            if(res.status === 401){
+              return loginPrompt().then(function(ok){
+                if(!ok) throw new Error('auth failed');
+                return fetch(path, Object.assign({}, opts, { credentials:'include', headers: headers }));
+              });
+            }
+            return res;
+          })
+          .then(function(res){ return res.json(); });
+      }
+
+      // ---------- Roles ----------
+      function refreshRolesTable(){
+        return api('/api/roles')
+          .then(function(rows){
+            var tb = document.getElementById('rolesTbody'); tb.innerHTML='';
+            (Array.isArray(rows)?rows:[]).forEach(function(r){
+              var tr = document.createElement('tr');
+              
+              var td1 = document.createElement('td');
+              td1.className = 'p-2 text-emerald-400 underline cursor-pointer user-cell hover:text-emerald-300 transition';
+              td1.textContent = r.user_id;
+              
+              var td2 = document.createElement('td');
+              td2.className = 'p-2';
+              td2.textContent = r.role;
+              
+              var td3 = document.createElement('td');
+              td3.className = 'p-2 text-zinc-400';
+              td3.textContent = tsToStr(r.updated_at);
+              
+              tr.appendChild(td1);
+              tr.appendChild(td2);
+              tr.appendChild(td3);
+              
+              td1.addEventListener('click', function(){
+                document.getElementById('userIdInput').value = r.user_id;
+                document.getElementById('roleSelect').value = r.role;
+              });
+              tb.appendChild(tr);
+            });
+          });
+      }
+      function loadRecent(){
+        var limit = parseInt(document.getElementById('recentLimit').value || '50', 10);
+        return api('/api/users/recent?limit=' + limit)
+          .then(function(rows){
+            var tb = document.getElementById('recentTbody'); tb.innerHTML='';
+            (Array.isArray(rows)?rows:[]).forEach(function(r){
+              var tr = document.createElement('tr');
+              
+              var td1 = document.createElement('td');
+              td1.className = 'p-2 text-sky-400 underline cursor-pointer uid-cell hover:text-sky-300 transition';
+              td1.textContent = r.user_id;
+              
+              var td2 = document.createElement('td');
+              td2.className = 'p-2 text-zinc-400';
+              td2.textContent = tsToStr(r.ts);
+              
+              tr.appendChild(td1);
+              tr.appendChild(td2);
+              
+              td1.addEventListener('click', function(){
+                document.getElementById('userIdInput').value = r.user_id;
+              });
+              tb.appendChild(tr);
+            });
+          });
+      }
+      function setRole(){
+        var user_id = (document.getElementById('userIdInput').value || '').trim();
+        var role = document.getElementById('roleSelect').value;
+        if(!user_id){ alert('กรุณาใส่ userId'); return Promise.resolve(); }
+        return api('/api/roles', { method:'POST', body: JSON.stringify({ user_id: user_id, role: role }) })
+          .then(refreshRolesTable);
+      }
+
+      // ---------- Bind ----------
+      document.getElementById('btnLogin').addEventListener('click', function(){
+        loginPrompt().then(function(ok){
+          setAuthState(ok? '🔓 ล็อกอินแล้ว (cookie ถูกตั้งค่า)' : '🔒 ยังไม่ได้ล็อกอิน');
+        });
+      });
+      document.getElementById('btnLogout').addEventListener('click', function(){
+        // ล้างคุกกี้ (ฝั่ง client) — หมายเหตุ: ถ้าตั้ง HttpOnly จริง ๆ ฝั่ง JS ลบไม่ได้
+        document.cookie = 'site_auth=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        setAuthState('🔒 ลบคุกกี้ฝั่ง client แล้ว (ถ้ายังเข้าถึง API ได้ แสดงว่ามีคุกกี้ HttpOnly เหลืออยู่จนหมดอายุ)');
+      });
+      document.getElementById('btnSetRole').addEventListener('click', function(){ setRole(); });
+      document.getElementById('btnRefreshRoles').addEventListener('click', function(){ refreshRolesTable(); });
+      document.getElementById('btnRefreshRoles2').addEventListener('click', function(){ refreshRolesTable(); });
+      document.getElementById('btnLoadRecent').addEventListener('click', function(){ loadRecent(); });
+      document.getElementById('btnRefreshSettings').addEventListener('click', function(){ loadSettings(); });
+      document.getElementById('btnLoadLogs').addEventListener('click', function(){ loadLogs(); });
+
+      // ---------- Notification Settings ----------
+      function loadSettings(){
+        return api('/api/notification-settings')
+          .then(function(rows){
+            var container = document.getElementById('settingsContainer');
+            container.innerHTML = '';
+            (Array.isArray(rows)?rows:[]).forEach(function(s){
+              var div = document.createElement('div');
+              div.className = 'flex items-center gap-2 p-2 bg-slate-800/30 rounded';
+              
+              var label = document.createElement('div');
+              label.className = 'text-sm font-semibold w-24';
+              label.textContent = s.type;
+              
+              var input = document.createElement('input');
+              input.type = 'text';
+              input.value = s.thresholds;
+              input.className = 'flex-1 px-3 py-1 rounded bg-slate-800/50 border border-cyan-500/30 focus:border-cyan-400 outline-none transition text-sm';
+              input.placeholder = 'เช่น 30 หรือ 120,60';
+              input.dataset.type = s.type;
+              
+              var btn = document.createElement('button');
+              btn.textContent = 'บันทึก';
+              btn.className = 'px-3 py-1 rounded bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm transition';
+              btn.onclick = function(){
+                var newVal = input.value.trim();
+                if(!newVal) return alert('กรุณาใส่ค่า');
+                api('/api/notification-settings', {
+                  method: 'POST',
+                  body: JSON.stringify({ type: s.type, thresholds: newVal })
+                })
+                .then(function(){
+                  alert('บันทึกเรียบร้อย');
+                  loadSettings();
+                })
+                .catch(function(e){ alert('บันทึกไม่สำเร็จ: ' + e.message); });
+              };
+              
+              var hint = document.createElement('div');
+              hint.className = 'text-xs text-cyan-300/60';
+              hint.textContent = 'นาที';
+              
+              div.appendChild(label);
+              div.appendChild(input);
+              div.appendChild(btn);
+              div.appendChild(hint);
+              container.appendChild(div);
+            });
+          });
+      }
+
+      // ---------- Audit Logs ----------
+      function loadLogs(){
+        var action = document.getElementById('actionFilter').value;
+        var limit = parseInt(document.getElementById('logLimit').value || '50', 10);
+        var url = '/api/audit-log?limit=' + limit;
+        if(action) url += '&action=' + encodeURIComponent(action);
+        
+        return api(url)
+          .then(function(rows){
+            var tb = document.getElementById('logsTbody');
+            tb.innerHTML = '';
+            (Array.isArray(rows)?rows:[]).forEach(function(log){
+              var tr = document.createElement('tr');
+              tr.className = 'border-b border-cyan-500/10 hover:bg-cyan-500/5';
+              
+              var td1 = document.createElement('td');
+              td1.className = 'p-2 text-cyan-400 text-xs';
+              td1.textContent = tsToStr(log.ts);
+              
+              var td2 = document.createElement('td');
+              td2.className = 'p-2 text-xs font-mono';
+              td2.textContent = log.actor || '-';
+              
+              var td3 = document.createElement('td');
+              td3.className = 'p-2';
+              var badge = document.createElement('span');
+              badge.className = 'px-2 py-0.5 rounded text-xs ' + getActionColor(log.action);
+              badge.textContent = log.action;
+              td3.appendChild(badge);
+              
+              var td4 = document.createElement('td');
+              td4.className = 'p-2 text-xs text-cyan-300/70';
+              td4.textContent = log.entity || '-';
+              
+              var td5 = document.createElement('td');
+              td5.className = 'p-2 text-xs';
+              var payloadBtn = document.createElement('button');
+              payloadBtn.textContent = 'ดู';
+              payloadBtn.className = 'text-cyan-400 hover:underline';
+              payloadBtn.onclick = function(){
+                alert(JSON.stringify(JSON.parse(log.payload || '{}'), null, 2));
+              };
+              td5.appendChild(payloadBtn);
+              
+              tr.appendChild(td1);
+              tr.appendChild(td2);
+              tr.appendChild(td3);
+              tr.appendChild(td4);
+              tr.appendChild(td5);
+              tb.appendChild(tr);
+            });
+          });
+      }
+
+      function getActionColor(action){
+        var colors = {
+          'create_event': 'bg-emerald-500/20 text-emerald-400',
+          'update_event': 'bg-sky-500/20 text-sky-400',
+          'delete_event': 'bg-red-500/20 text-red-400',
+          'set_role': 'bg-purple-500/20 text-purple-400',
+          'urgent_task': 'bg-rose-500/20 text-rose-400',
+          'update_notification_settings': 'bg-amber-500/20 text-amber-400'
+        };
+        return colors[action] || 'bg-slate-500/20 text-slate-400';
+      }
+
+      // ---------- Init ----------
+      (function init(){
+        setAuthState('…กำลังโหลดข้อมูล');
+        refreshRolesTable()
+          .then(loadRecent)
+          .then(function(){ setAuthState('พร้อมใช้งาน'); })
+          .catch(function(err){
+            console.warn('Initial load failed (อาจต้องล็อกอินก่อน):', err);
+            setAuthState('ต้องล็อกอินก่อน (กด “เข้าสู่ระบบ API”)');
+          });
+      })();
+    </script>
+  </body>
+</html>

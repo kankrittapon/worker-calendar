@@ -1,0 +1,30 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.dart text
+*.ts text
+*.js text
+*.json text
+*.yaml text
+*.yml text
+*.md text
+*.html text
+*.css text
+*.sql text
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.apk binary
+*.aab binary
+*.so binary
+*.zip binary
+*.tar.gz binary

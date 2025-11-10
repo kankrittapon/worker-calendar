@@ -3,7 +3,7 @@
 // Runtime types generated with workerd@1.20251011.0 2025-11-06 
 declare namespace Cloudflare {
 	interface GlobalProps {
-		mainModule: typeof import("./src/index");
+		mainModule: typeof import("./src/worker");
 	}
 	interface Env {
 	}

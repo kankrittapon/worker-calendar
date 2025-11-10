@@ -1,0 +1,10 @@
+https://calendar-worker.kan-krittapon.workers.dev/dev_console
+error log
+(index):64  cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+(anonymous) @ (index):64
+dev_console:181   GET https://calendar-worker.kan-krittapon.workers.dev/api/notification-settings 500 (Internal Server Error)
+api @ dev_console:181
+loadSettings @ dev_console:280
+(anonymous) @ dev_console:275
+VM338:1  Uncaught (in promise) SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON

@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boss • คู่มือการใช้งาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{ color-scheme: dark }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2d5a7b 100%);
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+    }
+    .code-block {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid #06b6d4;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body class="text-cyan-50 min-h-screen">
+  <div class="max-w-6xl mx-auto p-4">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+        คู่มือการใช้งาน Boss
+      </h1>
+      <p class="text-cyan-300/70 text-lg">รวมคำสั่งและฟีเจอร์ทั้งหมดสำหรับ Boss</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <a href="/boss.html" class="card p-4 rounded-xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition">
+        <div class="text-3xl mb-2">📊</div>
+        <div class="text-sm font-semibold">ดูตารางงาน</div>
+      </a>
+      <a href="/attendance.html" class="card p-4 rounded-xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition">
+        <div class="text-3xl mb-2">✅</div>
+        <div class="text-sm font-semibold">แจ้งเข้าร่วมงาน</div>
+      </a>
+      <a href="#line-commands" class="card p-4 rounded-xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition">
+        <div class="text-3xl mb-2">💬</div>
+        <div class="text-sm font-semibold">คำสั่ง LINE</div>
+      </a>
+      <a href="#notifications" class="card p-4 rounded-xl text-center hover:shadow-lg hover:shadow-cyan-500/20 transition">
+        <div class="text-3xl mb-2">🔔</div>
+        <div class="text-sm font-semibold">การแจ้งเตือน</div>
+      </a>
+    </div>
+
+    <!-- Features -->
+    <div class="space-y-6">
+      
+      <!-- 1. LINE Commands -->
+      <div id="line-commands" class="card p-6 rounded-xl shadow-xl feature-card">
+        <h2 class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <span class="text-3xl">💬</span> คำสั่งใน LINE Bot
+        </h2>
+        
+        <div class="space-y-4">
+          <!-- ดูตารางงาน -->
+          <div class="border-l-4 border-emerald-500 pl-4 py-2">
+            <h3 class="font-semibold text-emerald-400 text-lg mb-2">📅 ดูตารางงาน</h3>
+            <div class="space-y-2 text-cyan-100/90">
+              <div class="code-block">ตารางงานวันนี้</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงงานทั้งหมดวันนี้แบบ Flex Message</p>
+              
+              <div class="code-block">จำนวนงานวันนี้</div>
+              <p class="text-sm text-cyan-300/70">→ บอกจำนวนงานวันนี้</p>
+              
+              <div class="code-block">ตารางงานพรุ่งนี้</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงงานพรุ่งนี้</p>
+              
+              <div class="code-block">จำนวนงานพรุ่งนี้</div>
+              <p class="text-sm text-cyan-300/70">→ บอกจำนวนงานพรุ่งนี้</p>
+            </div>
+          </div>
+
+          <!-- สรุปงาน -->
+          <div class="border-l-4 border-sky-500 pl-4 py-2">
+            <h3 class="font-semibold text-sky-400 text-lg mb-2">📊 สรุปงาน</h3>
+            <div class="space-y-2 text-cyan-100/90">
+              <div class="code-block">สรุปสัปดาห์</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงจำนวนงานทั้งสัปดาห์ (จันทร์-อาทิตย์)</p>
+              
+              <div class="code-block">สรุปเดือน</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงรายการงานทั้งเดือน</p>
+            </div>
+          </div>
+
+          <!-- ดูงานวันที่ -->
+          <div class="border-l-4 border-amber-500 pl-4 py-2">
+            <h3 class="font-semibold text-amber-400 text-lg mb-2">📆 ดูงานวันที่ระบุ</h3>
+            <div class="space-y-2 text-cyan-100/90">
+              <div class="code-block">งานวันที่ 15</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงงานวันที่ 15 ของเดือนปัจจุบัน</p>
+              
+              <div class="code-block">วันที่ 25</div>
+              <p class="text-sm text-cyan-300/70">→ แสดงงานวันที่ 25</p>
+            </div>
+          </div>
+
+          <!-- สั่งงานด่วน -->
+          <div class="border-l-4 border-rose-500 pl-4 py-2">
+            <h3 class="font-semibold text-rose-400 text-lg mb-2">🚨 สั่งงานด่วน (เฉพาะ Boss)</h3>
+            <div class="space-y-2 text-cyan-100/90">
+              <div class="code-block">สั่งงานด่วน: เตรียมเอกสารประชุมให้ 10 ชุด</div>
+              <p class="text-sm text-cyan-300/70">→ ส่งงานด่วนให้เลขาทุกคนทันที</p>
+              
+              <div class="code-block">สั่งงานด่วน: ติดต่อกรมภายใน 1 ชม.</div>
+              <p class="text-sm text-cyan-300/70">→ รูปแบบ: สั่งงานด่วน: ตามด้วยรายละเอียด</p>
+            </div>
+          </div>
+
+          <!-- ส่งไฟล์ -->
+          <div class="border-l-4 border-purple-500 pl-4 py-2">
+            <h3 class="font-semibold text-purple-400 text-lg mb-2">📎 ส่งไฟล์ให้เลขา (เฉพาะ Boss)</h3>
+            <div class="space-y-2 text-cyan-100/90">
+              <p class="text-sm">ส่งไฟล์ (PDF, DOC, DOCX, รูปภาพ) เข้า LINE Bot</p>
+              <p class="text-sm text-cyan-300/70">→ ระบบจะส่งต่อให้เลขาทุกคนทันที</p>
+              <p class="text-sm text-cyan-300/70">→ คุณจะได้รับการยืนยันว่าส่งแล้ว</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Web Features -->
+      <div class="card p-6 rounded-xl shadow-xl feature-card">
+        <h2 class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <span class="text-3xl">🌐</span> ฟีเจอร์บนเว็บ
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+          <!-- ดูตารางงาน -->
+          <div class="card p-4 rounded-lg">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-4xl">📊</span>
+              <div>
+                <h3 class="font-bold text-lg">ดูตารางงาน</h3>
+                <a href="/boss.html" class="text-cyan-400 text-sm hover:underline">/boss.html</a>
+              </div>
+            </div>
+            <ul class="space-y-1 text-sm text-cyan-200/80">
+              <li>✅ ดูงานวันนี้</li>
+              <li>✅ ดูงานพรุ่งนี้</li>
+              <li>✅ ดูงานสัปดาห์นี้</li>
+              <li>✅ ดูงานเดือนนี้</li>
+            </ul>
+          </div>
+
+          <!-- แจ้งเข้าร่วมงาน -->
+          <div class="card p-4 rounded-lg">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-4xl">✅</span>
+              <div>
+                <h3 class="font-bold text-lg">แจ้งเข้าร่วมงาน</h3>
+                <a href="/attendance.html" class="text-cyan-400 text-sm hover:underline">/attendance.html</a>
+              </div>
+            </div>
+            <ul class="space-y-1 text-sm text-cyan-200/80">
+              <li>✅ ไป</li>
+              <li>❌ ไม่ไป</li>
+              <li>⏰ ติดธุระ</li>
+              <li class="text-cyan-400">→ คลิกปุ่มแล้วบันทึกทันที</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Notifications -->
+      <div id="notifications" class="card p-6 rounded-xl shadow-xl feature-card">
+        <h2 class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <span class="text-3xl">🔔</span> การแจ้งเตือนอัตโนมัติ
+        </h2>
+        
+        <div class="space-y-4">
+          <!-- เช้าทุกวัน -->
+          <div class="border-l-4 border-emerald-500 pl-4 py-2">
+            <h3 class="font-semibold text-emerald-400 text-lg mb-2">📋 แจ้งเตือนตอนเช้า (08:30)</h3>
+            <p class="text-cyan-100/90 mb-2">ทุกวันเวลา 08:30 น. (ถ้ามีงานวันนั้น)</p>
+            <div class="bg-slate-800/50 p-3 rounded text-sm">
+              <p class="text-cyan-300">📋 สวัสดีตอนเช้า!</p>
+              <p class="text-cyan-300">วันนี้มีงาน 3 รายการ</p>
+              <p class="text-cyan-300 mt-2">กรุณาแจ้งว่าจะไป/ไม่ไป:</p>
+              <p class="text-cyan-400">https://your-worker.workers.dev/attendance.html</p>
+            </div>
+          </div>
+
+          <!-- งานใหม่เพิ่มเข้ามา -->
+          <div class="border-l-4 border-sky-500 pl-4 py-2">
+            <h3 class="font-semibold text-sky-400 text-lg mb-2">🔔 งานใหม่เพิ่มเข้ามาวันนี้</h3>
+            <p class="text-cyan-100/90 mb-2">เมื่อเลขาเพิ่มงานวันนี้เข้าระบบ</p>
+            <div class="bg-slate-800/50 p-3 rounded text-sm">
+              <p class="text-cyan-300">🔔 มีงานใหม่เพิ่มเข้ามาวันนี้!</p>
+              <p class="text-cyan-400 text-xs mt-1">+ Flex Message แสดงรายละเอียดงาน</p>
+            </div>
+          </div>
+
+          <!-- แจ้งล่วงหน้า -->
+          <div class="border-l-4 border-amber-500 pl-4 py-2">
+            <h3 class="font-semibold text-amber-400 text-lg mb-2">⏰ แจ้งเตือนก่อนงานเริ่ม</h3>
+            <p class="text-cyan-100/90 mb-2">ตามระยะเวลาที่กำหนดตามประเภทงาน</p>
+            <div class="grid md:grid-cols-2 gap-2 text-sm">
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-emerald-400">🏢 ในหน่วย:</span> 30 นาที
+              </div>
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-sky-400">🏛️ ในกรม:</span> 60 นาที
+              </div>
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-amber-400">⭐ บก.ใหญ่:</span> 60 นาที
+              </div>
+              <div class="bg-slate-800/50 p-2 rounded">
+                <span class="text-rose-400">🚗 นอกหน่วย:</span> 120 + 60 นาที
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Tips & Tricks -->
+      <div class="card p-6 rounded-xl shadow-xl feature-card">
+        <h2 class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <span class="text-3xl">💡</span> เคลับลับการใช้งาน
+        </h2>
+        
+        <div class="space-y-3 text-cyan-100/90">
+          <div class="flex gap-3">
+            <span class="text-2xl">✨</span>
+            <div>
+              <p class="font-semibold text-cyan-300">Bookmark หน้าที่ใช้บ่อย</p>
+              <p class="text-sm text-cyan-300/70">เพิ่ม /boss.html และ /attendance.html เป็น Bookmark บนมือถือ</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <span class="text-2xl">⚡</span>
+            <div>
+              <p class="font-semibold text-cyan-300">ใช้คำสั่งสั้นๆ</p>
+              <p class="text-sm text-cyan-300/70">พิมพ์ "วันนี้" หรือ "พรุ่งนี้" แทน "ตารางงานวันนี้" ก็ได้</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <span class="text-2xl">📱</span>
+            <div>
+              <p class="font-semibold text-cyan-300">เปิดใน LINE Browser</p>
+              <p class="text-sm text-cyan-300/70">เปิดหน้าเว็บผ่าน LINE Browser จะสะดวกกว่า</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <span class="text-2xl">🔔</span>
+            <div>
+              <p class="font-semibold text-cyan-300">ตั้งค่าแจ้งเตือน</p>
+              <p class="text-sm text-cyan-300/70">เปิดการแจ้งเตือน LINE เพื่อไม่พลาดข้อความสำคัญ</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <span class="text-2xl">📎</span>
+            <div>
+              <p class="font-semibold text-cyan-300">ส่งหลายไฟล์พร้อมกัน</p>
+              <p class="text-sm text-cyan-300/70">เลือกส่งไฟล์หลายไฟล์ในครั้งเดียว ระบบจะส่งต่อให้เลขาทั้งหมด</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Quick Reference -->
+      <div class="card p-6 rounded-xl shadow-xl feature-card">
+        <h2 class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+          <span class="text-3xl">📖</span> อ้างอิงด่วน
+        </h2>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-cyan-300/80 border-b border-cyan-500/30">
+              <tr>
+                <th class="text-left p-2">คำสั่ง/ฟีเจอร์</th>
+                <th class="text-left p-2">ทำอะไร</th>
+                <th class="text-left p-2">ตัวอย่าง</th>
+              </tr>
+            </thead>
+            <tbody class="text-cyan-100/90">
+              <tr class="border-b border-cyan-500/10">
+                <td class="p-2 font-mono text-xs">ตารางงานวันนี้</td>
+                <td class="p-2">ดูงานวันนี้</td>
+                <td class="p-2 text-cyan-400">Flex Message</td>
+              </tr>
+              <tr class="border-b border-cyan-500/10">
+                <td class="p-2 font-mono text-xs">สั่งงานด่วน: ...</td>
+                <td class="p-2">ส่งงานให้เลขา</td>
+                <td class="p-2 text-rose-400">ทันที</td>
+              </tr>
+              <tr class="border-b border-cyan-500/10">
+                <td class="p-2 font-mono text-xs">ส่งไฟล์</td>
+                <td class="p-2">ส่งต่อให้เลขา</td>
+                <td class="p-2 text-purple-400">อัตโนมัติ</td>
+              </tr>
+              <tr class="border-b border-cyan-500/10">
+                <td class="p-2 font-mono text-xs">/boss.html</td>
+                <td class="p-2">ดูตารางเว็บ</td>
+                <td class="p-2 text-emerald-400">4 มุมมอง</td>
+              </tr>
+              <tr class="border-b border-cyan-500/10">
+                <td class="p-2 font-mono text-xs">/attendance.html</td>
+                <td class="p-2">แจ้งเข้าร่วม</td>
+                <td class="p-2 text-sky-400">ไป/ไม่ไป/ติดธุระ</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-mono text-xs">08:30 ทุกวัน</td>
+                <td class="p-2">ได้รับลิงก์</td>
+                <td class="p-2 text-amber-400">อัตโนมัติ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-12 text-center text-cyan-300/50 text-sm pb-8">
+      <p>Calendar Worker Boss Helper v1.0</p>
+      <p class="mt-1">หากมีปัญหาการใช้งาน กรุณาติดต่อเลขา</p>
+    </div>
+  </div>
+</body>
+</html>

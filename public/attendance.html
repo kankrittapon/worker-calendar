@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boss • แจ้งการเข้าร่วมงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{ color-scheme: dark }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2d5a7b 100%);
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .status-btn {
+      transition: all 0.3s ease;
+    }
+    .status-btn:hover {
+      transform: scale(1.05);
+    }
+    .status-btn.active {
+      box-shadow: 0 0 20px currentColor;
+    }
+  </style>
+</head>
+<body class="text-cyan-50 min-h-screen">
+  <div class="max-w-4xl mx-auto p-4">
+    <div class="mb-6">
+      <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">แจ้งการเข้าร่วมงาน</h1>
+      <p class="text-cyan-300/70 text-sm mt-1">กรุณาแจ้งว่าจะไป/ไม่ไป/ติดธุระ สำหรับงานวันนี้</p>
+    </div>
+    
+    <div class="mb-4 flex items-center gap-2">
+      <button id="btnLoadToday" class="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 font-semibold text-slate-900 shadow-lg hover:shadow-emerald-500/50 transition">
+        โหลดงานวันนี้
+      </button>
+      <span id="status" class="text-sm text-cyan-300/70"></span>
+    </div>
+    
+    <div id="eventsList" class="space-y-3"></div>
+    
+    <div id="emptyState" class="hidden card p-8 rounded-xl text-center">
+      <div class="text-6xl mb-4">📅</div>
+      <p class="text-cyan-300/70 text-lg">ไม่มีงานวันนี้</p>
+    </div>
+  </div>
+
+  <script>
+    const api = (p, opts) => fetch(p, Object.assign({ credentials: 'include' }, opts || {}))
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('API ' + r.status)));
+    
+    const pad = (n) => String(n).padStart(2, '0');
+    const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    
+    // สมมติ userId (ในการใช้จริงต้องดึงจาก LIFF หรือ OAuth)
+    let currentUserId = 'U1234567890abcdef1234567890abcdef'; // TODO: ใช้ LIFF getProfile()
+
+    function typeColor(type) {
+      const colors = {
+        'ในหน่วย': 'emerald',
+        'ในกรม': 'sky',
+        'บก.ใหญ่': 'amber',
+        'นอกหน่วย': 'rose'
+      };
+      return colors[type] || 'gray';
+    }
+
+    function renderEvent(ev, currentStatus) {
+      const div = document.createElement('div');
+      div.className = 'card p-4 rounded-xl shadow-lg';
+      
+      const color = typeColor(ev.type);
+      
+      const header = document.createElement('div');
+      header.className = 'mb-3 pb-3 border-b border-cyan-500/20';
+      
+      const title = document.createElement('div');
+      title.className = `font-bold text-lg text-${color}-400`;
+      title.textContent = `${ev.time} • ${ev.location}`;
+      
+      const meta = document.createElement('div');
+      meta.className = 'text-sm text-cyan-300/70 mt-1';
+      meta.textContent = `${ev.type} • ${ev.uniform}`;
+      
+      const details = document.createElement('div');
+      details.className = 'text-cyan-200/80 text-sm mt-1';
+      details.textContent = ev.details;
+      
+      header.appendChild(title);
+      header.appendChild(meta);
+      header.appendChild(details);
+      
+      // ปุ่มสถานะ
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'flex gap-2';
+      
+      const statuses = [
+        { value: 'join', label: '✅ ไป', color: 'emerald' },
+        { value: 'absent', label: '❌ ไม่ไป', color: 'red' },
+        { value: 'busy', label: '⏰ ติดธุระ', color: 'amber' }
+      ];
+      
+      statuses.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = `status-btn flex-1 px-4 py-2 rounded-lg font-semibold transition ${
+          currentStatus === s.value 
+            ? `bg-${s.color}-500 text-slate-900 active` 
+            : `bg-slate-700/50 text-cyan-100 hover:bg-slate-600/50`
+        }`;
+        btn.textContent = s.label;
+        btn.onclick = () => updateStatus(ev.id, s.value, btn.parentElement);
+        btnGroup.appendChild(btn);
+      });
+      
+      div.appendChild(header);
+      div.appendChild(btnGroup);
+      
+      return div;
+    }
+
+    async function updateStatus(eventId, status, btnGroup) {
+      try {
+        await api('/api/attendance', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            event_id: eventId,
+            user_id: currentUserId,
+            status: status,
+            actor: currentUserId
+          })
+        });
+        
+        // อัพเดต UI
+        const buttons = btnGroup.querySelectorAll('button');
+        buttons.forEach((btn, idx) => {
+          const statuses = ['join', 'absent', 'busy'];
+          const colors = ['emerald', 'red', 'amber'];
+          if (statuses[idx] === status) {
+            btn.className = `status-btn flex-1 px-4 py-2 rounded-lg font-semibold transition bg-${colors[idx]}-500 text-slate-900 active`;
+          } else {
+            btn.className = `status-btn flex-1 px-4 py-2 rounded-lg font-semibold transition bg-slate-700/50 text-cyan-100 hover:bg-slate-600/50`;
+          }
+        });
+        
+        // แสดงข้อความสำเร็จ
+        const s = document.getElementById('status');
+        s.textContent = '✅ บันทึกแล้ว';
+        setTimeout(() => s.textContent = '', 2000);
+      } catch (err) {
+        alert('บันทึกไม่สำเร็จ: ' + err.message);
+      }
+    }
+
+    async function loadToday() {
+      const s = document.getElementById('status');
+      s.textContent = 'กำลังโหลด...';
+      
+      try {
+        const today = ymd(new Date());
+        const month = today.substring(0, 7);
+        
+        // โหลดงาน
+        const events = await api(`/api/events?month=${month}`);
+        const todayEvents = events.filter(e => e.date === today);
+        
+        // โหลด attendance
+        const attendance = await api(`/api/attendance?date=${today}&user_id=${currentUserId}`);
+        const statusMap = new Map();
+        attendance.forEach(a => statusMap.set(a.event_id, a.status));
+        
+        const list = document.getElementById('eventsList');
+        const empty = document.getElementById('emptyState');
+        list.innerHTML = '';
+        
+        if (todayEvents.length === 0) {
+          list.classList.add('hidden');
+          empty.classList.remove('hidden');
+        } else {
+          list.classList.remove('hidden');
+          empty.classList.add('hidden');
+          
+          todayEvents.forEach(ev => {
+            const currentStatus = statusMap.get(ev.id) || null;
+            list.appendChild(renderEvent(ev, currentStatus));
+          });
+        }
+        
+        s.textContent = '';
+      } catch (err) {
+        console.error(err);
+        document.getElementById('status').textContent = 'โหลดไม่สำเร็จ';
+      }
+    }
+
+    document.getElementById('btnLoadToday').addEventListener('click', loadToday);
+    
+    // โหลดอัตโนมัติ
+    document.addEventListener('DOMContentLoaded', loadToday);
+  </script>
+</body>
+</html>

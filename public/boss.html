@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boss • ตารางงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{ color-scheme: dark }
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #2d5a7b 100%);
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .btn-ocean {
+      transition: all 0.3s ease;
+    }
+    .btn-ocean:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    }
+  </style>
+</head>
+<body class="text-cyan-50 min-h-screen">
+  <div class="max-w-5xl mx-auto p-4">
+    <div class="mb-6">
+      <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">ตารางงาน</h1>
+      <p class="text-cyan-300/70 text-sm mt-1">สำหรับ Boss - ดูตารางงานของคุณ</p>
+    </div>
+    
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button id="btnToday" class="btn-ocean px-5 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 font-semibold text-slate-900 shadow-lg">
+        📅 วันนี้
+      </button>
+      <button id="btnTomorrow" class="btn-ocean px-5 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-sky-600 font-semibold text-slate-900 shadow-lg">
+        ⏭️ พรุ่งนี้
+      </button>
+      <button id="btnWeek" class="btn-ocean px-5 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 font-semibold text-slate-900 shadow-lg">
+        📊 สัปดาห์นี้
+      </button>
+      <button id="btnMonth" class="btn-ocean px-5 py-2.5 rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 font-semibold text-slate-900 shadow-lg">
+        📆 เดือนนี้
+      </button>
+      <span id="status" class="text-sm text-cyan-300/70 px-2 py-2"></span>
+    </div>
+    
+    <div id="list" class="space-y-3"></div>
+  </div>
+
+  <script>
+    const api = (p)=> fetch(p,{credentials:'include'}).then(r=>r.ok?r.json():Promise.reject(new Error('API '+r.status)));
+    const pad = (n)=> String(n).padStart(2,'0');
+    const ymd = (d)=> `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const ymMonth = (d)=> `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+
+    function render(items, title){
+      const list = document.getElementById('list'); 
+      list.innerHTML = '';
+      
+      // Title
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'text-2xl font-bold mb-4 text-cyan-400';
+      titleDiv.textContent = title;
+      list.appendChild(titleDiv);
+      
+      const arr = Array.isArray(items) ? items : [];
+      if(!arr.length){
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'text-cyan-300/60 text-center py-8';
+        emptyDiv.textContent = '— ไม่มีงาน —';
+        list.appendChild(emptyDiv);
+        return;
+      }
+      
+      arr.forEach(ev=>{
+        const div = document.createElement('div');
+        div.className='rounded-xl border border-cyan-500/30 p-4 card shadow-lg hover:shadow-cyan-500/20 transition';
+        
+        const header = document.createElement('div');
+        header.className = 'font-semibold text-lg text-cyan-300';
+        header.textContent = `${ev.date} ${ev.time} — ${ev.type}`;
+        
+        const locationUniform = document.createElement('div');
+        locationUniform.className = 'text-cyan-100/80 mt-2';
+        locationUniform.textContent = `📍 ${ev.location} • 👔 ${ev.uniform}`;
+        
+        const details = document.createElement('div');
+        details.className = 'text-cyan-200/70 mt-2';
+        details.textContent = ev.details || '';
+        
+        div.appendChild(header);
+        div.appendChild(locationUniform);
+        div.appendChild(details);
+        
+        if(ev.notes){
+          const notes = document.createElement('div');
+          notes.className = 'text-cyan-300/60 mt-2 text-sm italic';
+          notes.textContent = `📝 ${ev.notes}`;
+          div.appendChild(notes);
+        }
+        
+        list.appendChild(div);
+      });
+    }
+
+    async function loadToday(){
+      const s = document.getElementById('status');
+      s.textContent = 'กำลังโหลด...';
+      try {
+        const now = new Date();
+        const month = ymMonth(now);
+        const data = await api(`/api/events?month=${month}`).catch(()=>[]);
+        const today = ymd(now);
+        const filtered = (data||[]).filter(x=>x.date === today);
+        render(filtered, `วันนี้ (${today})`);
+        s.textContent = '';
+      } catch(e){
+        s.textContent = 'โหลดไม่สำเร็จ';
+        console.warn(e);
+      }
+    }
+
+    async function loadTomorrow(){
+      const s = document.getElementById('status');
+      s.textContent = 'กำลังโหลด...';
+      try {
+        const now = new Date();
+        now.setDate(now.getDate() + 1);
+        const month = ymMonth(now);
+        const data = await api(`/api/events?month=${month}`).catch(()=>[]);
+        const tomorrow = ymd(now);
+        const filtered = (data||[]).filter(x=>x.date === tomorrow);
+        render(filtered, `พรุ่งนี้ (${tomorrow})`);
+        s.textContent = '';
+      } catch(e){
+        s.textContent = 'โหลดไม่สำเร็จ';
+        console.warn(e);
+      }
+    }
+
+    async function loadWeek(){
+      const s = document.getElementById('status');
+      s.textContent = 'กำลังโหลด...';
+      try {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ...
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        
+        const month = ymMonth(now);
+        const data = await api(`/api/events?month=${month}`).catch(()=>[]);
+        
+        const mondayStr = ymd(monday);
+        const sundayStr = ymd(sunday);
+        
+        const filtered = (data||[]).filter(x => x.date >= mondayStr && x.date <= sundayStr);
+        render(filtered, `สัปดาห์นี้ (${mondayStr} - ${sundayStr})`);
+        s.textContent = '';
+      } catch(e){
+        s.textContent = 'โหลดไม่สำเร็จ';
+        console.warn(e);
+      }
+    }
+
+    async function loadMonth(){
+      const s = document.getElementById('status');
+      s.textContent = 'กำลังโหลด...';
+      try {
+        const now = new Date();
+        const month = ymMonth(now);
+        const data = await api(`/api/events?month=${month}`).catch(()=>[]);
+        render(data, `เดือนนี้ (${month})`);
+        s.textContent = '';
+      } catch(e){
+        s.textContent = 'โหลดไม่สำเร็จ';
+        console.warn(e);
+      }
+    }
+
+    document.getElementById('btnToday').addEventListener('click', loadToday);
+    document.getElementById('btnTomorrow').addEventListener('click', loadTomorrow);
+    document.getElementById('btnWeek').addEventListener('click', loadWeek);
+    document.getElementById('btnMonth').addEventListener('click', loadMonth);
+
+    // โหลดอัตโนมัติเมื่อเปิดหน้า (วันนี้)
+    document.addEventListener('DOMContentLoaded', loadToday);
+  </script>
+</body>
+</html>
